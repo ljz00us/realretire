@@ -10,5 +10,6 @@ urlpatterns = patterns('',
     #pages
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'retire_app.views.landing', name='landing'),
+    url(r'^feedback/$', 'retire_app.views.feedback', name='feedback'),
     url(r'^search/$', 'retire_app.views.search', name='search'),
 )
