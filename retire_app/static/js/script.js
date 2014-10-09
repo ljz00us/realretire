@@ -5620,110 +5620,103 @@ var data = {
 //------------------------------------------------------------------------------------------------------------
 $(document).on('ready', function(){
 
-$(".sortable").hide();
+    $(".sortable").hide();
+
+    var list = data.cities;
+    var acceptable = [];
+
+
+    var filter_cost = function(cutoff_cost){
+        cost_list = data.cities;
+        list_length = cost_list.length;
+        for(var i = 0; i < list_length; i++){
+            curr_city = cost_list[i];
+            if(curr_city.nomadCost.USD <= cutoff_cost){
+                acceptable.push(curr_city);
+            }
+        }
+        return acceptable;
+    };
+
+    var curr_city;
+    var filter = function(list, filter_identifier, filter_value){
+        var successful = [];
+        var list_name = filter_identifier;
+        var list_length = list.length;
+        for(var i = 0; i < list_length; i++){
+            curr_city = list[i];
+            if(curr_city[list_name] >= filter_value){
+                successful.push(curr_city);
+            }
+        }
+        return successful;
+    };
+
+
+    var move_to_about = function(){
+        window.location.hash = '#about';
+    };
+
+
+    var actually_filter_the_cities =  function(){
+        var searchName;
+        var max_value_mappings = {
+            1:"1263",
+            2:"1724",
+            3:"3296",
+            4:"4358",
+            5:"6167"
+        };
+
+        var climate_mappings = {
+            cold:"60",
+            moderate:'80',
+            hot:'180'
+        };
+    
+        var internet_mappings = {
+            critical:"40",
+            recreational:'20',
+            who_cares:'1'
+        };
+
+
+        var strUser = document.getElementById("incomeStuff").options[income.selectedIndex].value;
+        var income_value = max_value_mappings[strUser];
+
+        var strClim = document.getElementById("climateStuff").options[climate.selectedIndex].value;
+        var climate_value = climate_mappings[strClim];
+
+        var strInternet = document.getElementById("internetStuff").options[internet.selectedIndex].value;
+        var internet_value = internet_mappings[strInternet];
+
+        acceptable = filter_cost(income_value);
+        searchResults = filter(acceptable, "internetSpeed", internet_value);
+
+        if(searchResults.length === 0){
+            alert("No results, please modify your search");
+        } else {
+            var sortable = $(".sortable");
+            sortable.show();
+            for (var i = 0; i < searchResults.length; i++) {
+                searchName = searchResults[i].name.replace(",", "").replace(" ", "-");
+                $("#search_results_table").append(""
+                        + "<tr><td><a target=blank href=https://www.airbnb.com/s/"
+                        + searchName + ">"
+                        + searchResults[i].name + ", " + searchResults[i].country +"</td><td>"
+                        + searchResults[i].nomadCost.USD + "</td><td>"
+                        + searchResults[i].internetSpeed + "</td><td>"
+                        + searchResults[i].temperature.f + "</td><td>"
+                        + searchResults[i].HealthcareIndex + "</td></tr>"
+                );
+            }
+            sortable.floatThead({
+                useAbsolutePositioning: false
+            });
+            var cost_def = $("#costDef");
+            cost_def.empty();
+            cost_def.append("<p style='font-family: Raleway; font-size:10px;'><sup>*</sup>Based on nomadCost&#0153;<br> a monthly average which includes monthly food, housing, and daily living expenses. <br>Provided by nomadList&#0153; .</p>");
+            window.location.hash = '#citiesTable';
+        }
+    };
 });
-var list = data.cities;
-var acceptable = [];
-
-
-var filter_cost = function(cutoff_cost){
-    cost_list = data.cities;
-    list_length = cost_list.length;
-    for(var i = 0; i < list_length; i++){
-        curr_city = cost_list[i];
-        if(curr_city.nomadCost.USD <= cutoff_cost){
-            acceptable.push(curr_city);
-        }
-    }
-    return acceptable;
-}
-
-var curr_city;
-var filter = function(list, filter_identifier, filter_value){
-    var successful = [];
-    var list_name = filter_identifier;
-//    console.log(filter_identifier)
-    var list_length = list.length;
-    for(var i = 0; i < list_length; i++){
-        curr_city = list[i];
-//        console.log(curr_city);
-//        console.log(cost);
-
-        if(curr_city[filter_identifier] >= filter_value){
-            successful.push(curr_city);
-//                console.log(curr_city.name + " <----------- ADDED to list");
-        }
-    }
-    return successful;
-}
-
-
-var move_to_about = function(){
-    window.location.hash = '#about';
-};
-
-
-var actually_filter_the_cities =  function(){
-    var searchName;
-    var max_value_mappings = {
-        1:"1263",
-        2:"1724",
-        3:"3296",
-        4:"4358",
-        5:"6167"
-    };
-
-    var climate_mappings = {
-        cold:"60",
-        moderate:'80',
-        hot:'180'
-    };
-
-    var internet_mappings = {
-        critical:"40",
-        recreational:'20',
-        who_cares:'1'
-    };
-
-    var income = document.getElementById("incomeStuff");
-    var strUser = income.options[income.selectedIndex].value;
-    var income_value = max_value_mappings[strUser];
-
-    var climate = document.getElementById("climateStuff");
-    var strClim = climate.options[climate.selectedIndex].value;
-    var climate_value = climate_mappings[strClim];
-
-    var internet = document.getElementById("internetStuff");
-    var strInternet = internet.options[internet.selectedIndex].value;
-    var internet_value = internet_mappings[strInternet];
-
-    acceptable = filter_cost(income_value);
-    searchResults = filter(acceptable, "internetSpeed", internet_value);
-
-
-    if(searchResults.length === 0){
-        alert("No results, please modify your search");
-    } else {
-        var sortable = $(".sortable");
-        sortable.show();
-        for (var i = 0; i < searchResults.length; i++) {
-            searchName = searchResults[i].name.replace(",", "").replace(" ", "-");
-            $("#search_results_table").append(""
-                    + "<tr><td><a target=blank href=https://www.airbnb.com/s/"
-
-                    + searchName + ">"
-                    + searchResults[i].name + ", " + searchResults[i].country +"</td><td>"
-                    + searchResults[i].nomadCost.USD + "</td><td>"
-                    + searchResults[i].internetSpeed + "</td><td>"
-                    + searchResults[i].temperature.f + "</td><td>"
-                    + searchResults[i].HealthcareIndex + "</td></tr>"
-            );
-        }
-        sortable.floatThead({
-	useAbsolutePositioning: false
-});
-        $("#costDef").empty();
-        $("#costDef").append("<p style='font-family: Raleway; font-size:10px;'><sup>*</sup>Based on nomadCost&#0153;<br> a monthly average which includes monthly food, housing, and daily living expenses. <br>Provided by nomadList&#0153; .</p>");
-        window.location.hash = '#citiesTable';
-    }
-};
